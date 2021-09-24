@@ -18,6 +18,17 @@ build/weasyprint-layer-$(RUNTIME).zip: weasyprint/layer_builder.sh \
 	    && unzip weasyprint-no-fonts-layer.zip -d opt \
 	    && cd opt && zip -r9 ../weasyprint-layer-${RUNTIME}.zip .
 
+build/pdf2img-layer-$(RUNTIME).zip: pdf2img/layer_builder.sh \
+    _build
+	docker run --rm \
+	    -v `pwd`/pdf2img:/out \
+	    -t lambci/lambda:build-${RUNTIME} \
+	    bash /out/layer_builder.sh
+	mv -f ./pdf2img/layer.zip ./build/pdf2img-layer.zip
+	cd build && rm -rf ./opt && mkdir opt \
+		&& unzip pdf2img-layer.zip -d opt \
+	    && cd opt && zip -r9 ../pdf2img-layer-${RUNTIME}.zip .
+
 build/fonts-layer.zip: fonts/layer_builder.sh | _build
 	docker run --rm \
 	    -e INSTALL_MS_FONTS="${INSTALL_MS_FONTS}" \
